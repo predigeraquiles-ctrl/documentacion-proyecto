@@ -1,75 +1,165 @@
-// MODULO RULETA
-const canvas = document.getElementById('wheel');
-const ctx = canvas.getContext('2d');
-const spinBtn = document.getElementById('spinBtn');
-const startTournamentBtn = document.getElementById('startTournamentBtn');
+let availablePlayers = ["Nacho", "Giovanni", "Franquito", "Nico", "Rolo"];
+const colors = ["#ef4444", "#3b82f6", "#eab308", "#10b981", "#8b5cf6"];
 
-const fightersList = ["Jugador 1", "Jugador 2", "Jugador 3", "Jugador 4", "As (Shikamaru)"];
-const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const spinBtn = document.getElementById("spinBtn");
+const startTournamentBtn = document.getElementById("startTournamentBtn");
+
+const center = canvas.width / 2;
+const radius = center - 10;
 
 let currentAngle = 0;
 let isSpinning = false;
-let drawnFighters = [];
+let currentSlotIndex = 0;
 
-// Dibujar la ruleta en el canvas
+let tournamentPlayers = {
+    n0: "", n1: "", n2: "", n3: "", n4: "",
+    p1_win: "", p2_win: "", shikamaru_win: "", champion: ""
+};
+
 function drawWheel() {
-    const numSegments = fightersList.length;
-    const arcSize = (2 * Math.PI) / numSegments;
-    const radius = canvas.width / 2;
-
+    const totalSlices = availablePlayers.length;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < numSegments; i++) {
-        const angle = currentAngle + i * arcSize;
+    if (totalSlices === 0) {
         ctx.beginPath();
-        ctx.fillStyle = colors[i % colors.length];
-        ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius, angle, angle + arcSize);
-        ctx.lineTo(radius, radius);
+        ctx.arc(center, center, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = "#0f172a";
         ctx.fill();
+        ctx.fillStyle = "#38bdf8";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillText("¡Cuadro Completo!", center, center);
+        return;
+    }
 
-        // Texto del luchador
+    const sliceAngle = (2 * Math.PI) / totalSlices;
+
+    for (let i = 0; i < totalSlices; i++) {
+        const angle = currentAngle + i * sliceAngle;
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, angle, angle + sliceAngle);
+        ctx.closePath();
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+        ctx.strokeStyle = "#0a0e17";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
         ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(angle + arcSize / 2);
-        ctx.textAlign = "right";
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 14px sans-serif";
-        ctx.fillText(fightersList[i], radius - 15, 5);
+        ctx.translate(center, center);
+
+        const currentSliceAngle = angle + sliceAngle / 2;
+        ctx.rotate(currentSliceAngle);
+
+        const normalizedAngle = (currentSliceAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+        ctx.font = "bold 15px sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.lineJoin = "round";
+
+        if (normalizedAngle > Math.PI / 2 && normalizedAngle < (3 * Math.PI) / 2) {
+            ctx.rotate(Math.PI);
+            ctx.textAlign = "left";
+            
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 3;
+            ctx.strokeText(availablePlayers[i], -radius + 15, 0);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(availablePlayers[i], -radius + 15, 0);
+        } else {
+            ctx.textAlign = "right";
+            
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 3;
+            ctx.strokeText(availablePlayers[i], radius - 15, 0);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(availablePlayers[i], radius - 15, 0);
+        }
+
         ctx.restore();
     }
 }
 
-// Giro con física simple
-spinBtn.addEventListener('click', () => {
-    if (isSpinning) return;
+function spin() {
+    if (isSpinning || availablePlayers.length === 0) return;
     isSpinning = true;
     spinBtn.disabled = true;
 
-    let speed = Math.random() * 0.3 + 0.4;
-    const friction = 0.985;
+    const startAngle = currentAngle;
+    const extraRotations = (Math.floor(Math.random() * 5) + 5) * 2 * Math.PI;
+    const targetAngle = startAngle + extraRotations + Math.random() * 2 * Math.PI;
 
-    function animate() {
-        speed *= friction;
-        currentAngle += speed;
+    const duration = 2800;
+    const startTime = performance.now();
+
+    function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 4);
+        currentAngle = startAngle + (targetAngle - startAngle) * easeOut;
+
         drawWheel();
 
-        if (speed > 0.002) {
+        if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
             isSpinning = false;
-            spinBtn.disabled = false;
-            startTournamentBtn.style.display = 'inline-block';
+            determineWinner();
         }
     }
-    animate();
-});
+    requestAnimationFrame(animate);
+}
 
-// Transición a la Arena
-startTournamentBtn.addEventListener('click', () => {
-    // Cambiar a la pestaña de la arena
-    document.querySelector('[data-view="view-arena"]').click();
-});
+function determineWinner() {
+    const totalSlices = availablePlayers.length;
+    const sliceAngle = (2 * Math.PI) / totalSlices;
+    const normalizedAngle = (currentAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    const pointerAngle = (3 * Math.PI / 2 - normalizedAngle + 2 * Math.PI) % (2 * Math.PI);
+    const selectedIndex = Math.floor(pointerAngle / sliceAngle);
 
-// Render inicial
+    const selectedPlayer = availablePlayers[selectedIndex];
+
+    const node = document.getElementById(`node-${currentSlotIndex}`);
+    node.textContent = selectedPlayer;
+    node.classList.add("active");
+
+    tournamentPlayers[`n${currentSlotIndex}`] = selectedPlayer;
+
+    availablePlayers.splice(selectedIndex, 1);
+    currentSlotIndex++;
+
+    if (availablePlayers.length === 1) {
+        const lastPlayer = availablePlayers[0];
+        const lastNode = document.getElementById("node-4");
+        setTimeout(() => {
+            lastNode.textContent = lastPlayer;
+            tournamentPlayers.n4 = lastPlayer;
+            availablePlayers.pop();
+            drawWheel();
+            spinBtn.style.display = "none";
+            startTournamentBtn.style.display = "block";
+        }, 600);
+    } else {
+        drawWheel();
+        spinBtn.disabled = false;
+    }
+}
+
+if (spinBtn) {
+    spinBtn.addEventListener("click", spin);
+}
+
+if (startTournamentBtn) {
+    startTournamentBtn.addEventListener("click", () => {
+        window.switchView("view-arena");
+        window.setupVersus("Pelea 1", tournamentPlayers.n0, tournamentPlayers.n1);
+    });
+}
+
 drawWheel();

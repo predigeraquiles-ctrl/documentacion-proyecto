@@ -1,54 +1,70 @@
-// MÓDULO DE RECOMPENSAS Y TROFEO
-const pokeballGrid = document.getElementById('pokeballGrid');
-const rewardResult = document.getElementById('rewardResult');
-const rewardImg = document.getElementById('rewardImg');
-const rewardName = document.getElementById('rewardName');
-const rewardTitle = document.getElementById('rewardTitle');
-const resetBtn = document.getElementById('resetBtn');
-
-// Lista de Pokébolas disponibles
 const pokeballs = [
-    { id: 1, name: "Poké Ball Clásica", src: "../pokebolas/pokeball.png" },
-    { id: 2, name: "Super Ball", src: "../pokebolas/superball.png" },
-    { id: 3, name: "Ultra Ball", src: "../pokebolas/ultraball.png" },
-    { id: 4, name: "Master Ball", src: "../pokebolas/masterball.png" },
-    { id: 5, name: "Honor Ball", src: "../pokebolas/honorball.png" }
+    { name: "Poké Ball", file: "pokebolas/pokeball.png" },
+    { name: "Super Ball", file: "pokebolas/superball.png" },
+    { name: "Ultra Ball", file: "pokebolas/ultraball.png" },
+    { name: "Master Ball", file: "pokebolas/masterball.png" },
+    { name: "Safari Ball", file: "pokebolas/safariball.png" },
+    { name: "Nivel Ball", file: "pokebolas/nivelaball.png" },
+    { name: "Señuelo Ball", file: "pokebolas/señueloball.png" },
+    { name: "Moon Ball", file: "pokebolas/moonball.png" },
+    { name: "Friend Ball", file: "pokebolas/friendball.png" },
+    { name: "Love Ball", file: "pokebolas/loveball.png" },
+    { name: "Pesado Ball", file: "pokebolas/pesadoball.png" },
+    { name: "Rapid Ball", file: "pokebolas/rapidball.png" },
+    { name: "Competi Ball", file: "pokebolas/competiball.png" },
+    { name: "Honor Ball", file: "pokebolas/honorball.png" },
+    { name: "Malla Ball", file: "pokebolas/mallaball.png" },
+    { name: "Nido Ball", file: "pokebolas/nidoball.png" },
+    { name: "Acopio Ball", file: "pokebolas/acopioball.png" },
+    { name: "Turno Ball", file: "pokebolas/turnoball.png" },
+    { name: "Lujo Ball", file: "pokebolas/lujoball.png" },
+    { name: "Sana Ball", file: "pokebolas/sanaball.png" },
+    { name: "Ocaso Ball", file: "pokebolas/ocasoball.png" },
+    { name: "Glory Ball", file: "pokebolas/gloryball.png" },
+    { name: "Ente Ball", file: "pokebolas/enteball.png" },
+    { name: "Ensueño Ball", file: "pokebolas/ensueñoball.png" },
+    { name: "Veloz Ball", file: "pokebolas/velozball.png" },
+    { name: "Buceo Ball", file: "pokebolas/buceoball.png" },
+    { name: "Park Ball", file: "pokebolas/parkball.png" }
 ];
 
-// Generar grilla de selección
-function renderPokeballs() {
-    pokeballGrid.innerHTML = '';
+function renderPokeballGrid() {
+    const title = document.getElementById("rewardTitle");
+    if (tournamentPlayers && tournamentPlayers.champion) {
+        title.textContent = `FELICIDADES, ${tournamentPlayers.champion.toUpperCase()}`;
+    }
     
+    const grid = document.getElementById("pokeballGrid");
+    grid.innerHTML = "";
+    grid.style.display = "flex";
+
     pokeballs.forEach(ball => {
-        const item = document.createElement('div');
-        item.className = 'pokeball-item';
-        item.innerHTML = `
-            <img src="../logoOficialPvP1.png" alt="Insignia Tapada" class="hidden-ball">
-            <p>?</p>
-        `;
-        
-        item.addEventListener('click', () => claimReward(ball));
-        pokeballGrid.appendChild(item);
+        const btn = document.createElement("button");
+        btn.className = "pokeball-item";
+
+        const img = document.createElement("img");
+        img.src = ball.file;
+        img.alt = ball.name;
+
+        btn.appendChild(img);
+
+        btn.onclick = () => {
+            grid.style.display = "none";
+            document.getElementById("rewardImg").src = ball.file;
+            const champName = (tournamentPlayers && tournamentPlayers.champion) ? tournamentPlayers.champion : "Campeón";
+            document.getElementById("rewardName").textContent = `${champName} reclamó: ${ball.name}`;
+            document.getElementById("rewardResult").style.display = "flex";
+        };
+
+        grid.appendChild(btn);
     });
 }
 
-// Revelar premio seleccionado
-function claimReward(ball) {
-    pokeballGrid.style.display = 'none';
-    rewardTitle.innerText = "¡FELICITACIONES AL CAMPEÓN!";
-    
-    // Asignar imagen (usamos el logo oficial o la pokébola elegida)
-    rewardImg.src = "../logoOficialPvP1.png";
-    rewardName.innerText = ball.name;
-    rewardResult.style.display = 'flex';
-    rewardResult.style.flexDirection = 'column';
-    rewardResult.style.alignItems = 'center';
+const restartBtn = document.getElementById("restartBtn");
+if (restartBtn) {
+    restartBtn.addEventListener("click", () => {
+        location.reload();
+    });
 }
 
-// Reiniciar torneo
-resetBtn.addEventListener('click', () => {
-    location.reload(); // Recarga limpia para nuevo torneo
-});
-
-// Inicializar grilla
-renderPokeballs();
+window.renderPokeballGrid = renderPokeballGrid;

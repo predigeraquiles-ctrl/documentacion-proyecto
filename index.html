@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link id="favicon" rel="icon" type="image/png" href="../logoOficialPvP1.png">
-    <title>Torneo Pokémon CESMI - Dashboard</title>
+    <link id="favicon" rel="icon" type="image/png" href="logoOficialPvP1.png">
+    <title>Torneo Pokémon CESMI</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-    <!-- MENÚ HAMBURGUESA / SIDEBAR -->
     <button class="menu-toggle" id="menuToggle" aria-label="Abrir Menú">
         <span></span>
         <span></span>
@@ -18,7 +17,7 @@
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <img src="../logoOficialPvP1.png" alt="Logo Torneo" class="sidebar-logo">
+            <img src="ruletaTorneoPoke/logoOficialPvP1" alt="Logo Torneo" class="sidebar-logo">
             <h2>TORNEO CESMI</h2>
         </div>
         <nav class="sidebar-nav">
@@ -28,30 +27,23 @@
         </nav>
     </aside>
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <main class="main-content">
-        
-        <!-- HEADER GLOBAL -->
-        <header class="title-header">
+        <div class="title-header">
             <div class="logo-container">
-                <img src="../logoOficialPvP1.png" alt="Logo Torneo">
+                <img src="logoOficialPvP1.png" alt="Logo Torneo">
             </div>
-            <h1>Torneo Pokémon CESMI</h1>
-        </header>
+            <h1>Torneo Pokemon CESMI</h1>
+        </div>
 
-        <!-- VISTA 1: SORTEO / RULETA -->
         <section id="view-draw" class="view-section active">
             <div class="wheel-container">
                 <div class="pointer"></div>
                 <canvas id="wheel" width="320" height="320"></canvas>
             </div>
-            <div class="controls">
-                <button id="spinBtn">Girar Ruleta</button>
-                <button id="startTournamentBtn" class="btn-gold" style="display: none;">¡Ir a la Arena de Combate!</button>
-            </div>
+            <button id="spinBtn">Girar Ruleta</button>
+            <button id="startTournamentBtn" style="display: none; background: linear-gradient(135deg, #eab308, #ca8a04); color: #000; border-color: #fef08a;">¡Ir a la Arena de Combate!</button>
         </section>
 
-        <!-- VISTA 2: ARENA Y ÁRBOL DE COMBATE -->
         <section id="view-arena" class="view-section">
             <div class="tree-container">
                 <div class="tree-level">
@@ -83,28 +75,25 @@
             </div>
         </section>
 
-        <!-- VISTA 3: SELECCIÓN DE PREMIOS -->
         <section id="view-reward" class="view-section">
-            <div class="reward-header">
-                <h2 id="rewardTitle">Elija su Pokébola, Campeón</h2>
-                <p>La Pokébola seleccionada será el logo oficial del siguiente torneo PVP como insignia del último campeón.</p>
+            <div style="text-align: center;">
+                <h2 id="rewardTitle" style="color: #eab308; font-size: 26px; text-transform: uppercase;">Elija su Pokébola, Campeón</h2>
+                <p style="color: #94a3b8; margin-top: 5px; max-width: 650px;">Felicidades por ser el campeón actual del torneo. La Pokébola seleccionada será el logo oficial del siguiente torneo PVP como insignia del último campeón.</p>
             </div>
             
             <div class="pokeball-grid" id="pokeballGrid"></div>
 
-            <div id="rewardResult" class="reward-result" style="display: none;">
-                <h2>¡INSIGNIA RECLAMADA!</h2>
+            <div id="rewardResult" style="display: none; flex-direction: column; align-items: center; margin-top: 10px;">
+                <h2 style="color: #eab308; letter-spacing: 2px;">¡INSIGNIA RECLAMADA!</h2>
                 <div class="trophy-container">
                     <img id="rewardImg" src="" alt="Premio">
                 </div>
-                <h3 id="rewardName">--</h3>
-                <button id="resetBtn" class="btn-success">Reiniciar Torneo</button>
+                <h3 id="rewardName" style="font-size: 22px; color: #ffffff;">--</h3>
+                <button id="restartBtn" style="background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #86efac; color: #000;">Reiniciar Torneo</button>
             </div>
         </section>
-
     </main>
 
-    <!-- CARGA DE SCRIPTS MODULARES -->
     <script src="js/wheel.js"></script>
     <script src="js/tree.js"></script>
     <script src="js/rewards.js"></script>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Selección de Premio - Campeón Pokémon</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at center, #0a0e17, #161b22, #000000);
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      overflow-x: hidden;
+    }
+
+    .title-container {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .title-container h1 {
+      color: #ffd700;
+      font-size: 28px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    }
+
+    .title-container p {
+      color: #8b949e;
+      font-size: 15px;
+      margin-top: 5px;
+    }
+
+    /* GRILLA LIMPIA Y ADAPTATIVA */
+    .pokeball-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 900px;
+    }
+
+    /* BOTÓN CIRCULAR CON EFECTO DE LUZ */
+    .pokeball-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      
+      /* Animación Flotante */
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .pokeball-btn:nth-child(2n) { animation-delay: 0.6s; }
+    .pokeball-btn:nth-child(3n) { animation-delay: 1.2s; }
+    .pokeball-btn:nth-child(5n) { animation-delay: 1.8s; }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .pokeball-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    /* HOVER Y INTERACCIÓN TÁCTIL */
+    .pokeball-btn:hover {
+      transform: translateY(-12px) scale(1.15) !important;
+      border-color: #ffd700;
+      background: rgba(255, 215, 0, 0.1);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+      z-index: 10;
+    }
+
+    .pokeball-btn:active {
+      transform: scale(0.9) !important;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+
+    /* MODAL PREMIO */
+    .reward-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(10px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .reward-modal.active { display: flex; }
+
+    .trophy-container {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 3px solid #ffd700;
+      padding: 15px;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+      margin: 25px 0;
+      animation: pulse 2s infinite alternate;
+      background: rgba(255, 215, 0, 0.05);
+    }
+
+    .trophy-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); }
+      100% { transform: scale(1.08); box-shadow: 0 0 55px rgba(255, 215, 0, 1); }
+    }
+
+    .btn-finish {
+      background: #2ed573;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="title-container">
+    <h1>Elija su Pokébola, Campeón</h1>
+    <p>Toque una Pokébola para reclamar su insignia de torneo</p>
+  </div>
+
+  <div class="pokeball-grid" id="grid"></div>
+
+  <!-- MODAL DE PREMIO -->
+  <div class="reward-modal" id="rewardModal">
+    <h1 style="color: #ffd700; font-size: 32px; letter-spacing: 2px;">¡INSIGNIA RECLAMADA!</h1>
+    <div class="trophy-container">
+      <img id="rewardImg" src="" alt="Pokébola Premio">
+    </div>
+    <h2 id="rewardName" style="font-size: 22px; color: #fff;">--</h2>
+    <button class="btn-finish" onclick="location.reload()">Aceptar y Finalizar</button>
+  </div>
+
+  <script>
+    const grid = document.getElementById("grid");
+
+    // LISTA MATEADA CON TUS ARCHIVOS PNG EXACTOS
+    const pokeballs = [
+      { name: "Poké Ball", file: "pokeball.png" },
+      { name: "Super Ball", file: "superball.png" },
+      { name: "Ultra Ball", file: "ultraball.png" },
+      { name: "Master Ball", file: "masterball.png" },
+      { name: "Safari Ball", file: "safariball.png" },
+      { name: "Nivel Ball", file: "nivelaball.png" },
+      { name: "Señuelo Ball", file: "señueloball.png" },
+      { name: "Moon Ball", file: "moonball.png" },
+      { name: "Friend Ball", file: "friendball.png" },
+      { name: "Love Ball", file: "loveball.png" },
+      { name: "Pesado Ball", file: "pesadoball.png" },
+      { name: "Rapid Ball", file: "rapidball.png" },
+      { name: "Competi Ball", file: "competiball.png" },
+      { name: "Honor Ball", file: "honorball.png" },
+      { name: "Malla Ball", file: "mallaball.png" },
+      { name: "Nido Ball", file: "nidoball.png" },
+      { name: "Acopio Ball", file: "acopioball.png" },
+      { name: "Turno Ball", file: "turnoball.png" },
+      { name: "Lujo Ball", file: "lujoball.png" },
+      { name: "Sana Ball", file: "sanaball.png" },
+      { name: "Ocaso Ball", file: "ocasoball.png" },
+      { name: "Glory Ball", file: "gloryball.png" },
+      { name: "Ente Ball", file: "enteball.png" },
+      { name: "Ensueño Ball", file: "ensueñoball.png" },
+      { name: "Veloz Ball", file: "velozball.png" },
+      { name: "Buceo Ball", file: "buceoball.png" },
+      { name: "Park Ball", file: "parkball.png" }
+    ];
+
+    // Cargar dinámicamente cada Pokébola en la grilla
+    pokeballs.forEach(ball => {
+      const btn = document.createElement("button");
+      btn.className = "pokeball-btn";
+
+      const img = document.createElement("img");
+      img.src = ball.file;
+      img.alt = ball.name;
+
+      btn.appendChild(img);
+
+      btn.onclick = () => {
+        document.getElementById("rewardImg").src = ball.file;
+        document.getElementById("rewardName").textContent = ball.name;
+        document.getElementById("rewardModal").classList.add("active");
+      };
+
+      grid.appendChild(btn);
+    });
+  </script>
+</body>
+</html>
