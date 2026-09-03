@@ -8,7 +8,7 @@ fecha: 2026-09-03
 > [!important] Si estás leyendo esto, tu Obsidian está sincronizado con GitHub.
 > Avisale al equipo que la ves, con tu nombre y la hora.
 
-- [ ] Compañero 1: ____________________ (fecha/hora: ___ )
+- [x] Compañero 1: Fakuu (fecha/hora: 2026-09-03 01:23)
 - [ ] Compañero 2: ____________________ (fecha/hora: ___ )
 - [ ] Compañero 3: ____________________ (fecha/hora: ___ )
 
