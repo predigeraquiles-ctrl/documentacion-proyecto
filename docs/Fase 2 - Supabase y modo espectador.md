@@ -22,10 +22,12 @@ relacionado: ["[[00 - Indice Torneo CESMI]]", "[[Fase 1 - Persistencia localStor
 - Tabla: `tournaments` (endpoint `/rest/v1/tournaments`)
 - Clave: `js/db.js` → `SUPABASE_ANON_KEY` (**falta pegarla**: Dashboard > Project Settings > API > anon public).
 
-## Esquema v2 (1 tabla)
+## Esquema v2 (tabla propia)
+
+> 2026-09-04: la `tournaments` existente era de otra herramienta (solo `id bigint` + `created_at`, sin `data`). Se usa tabla propia `torneo_estado`.
 
 ```sql
-create table if not exists tournaments (
+create table if not exists torneo_estado (
   id uuid default gen_random_uuid() primary key,
   name text default 'Torneo CESMI PvP 1',
   status text default 'en_curso',
@@ -36,16 +38,16 @@ create table if not exists tournaments (
 );
 
 -- Realtime para el canal postgres_changes
-alter publication supabase_realtime add table tournaments;
+alter publication supabase_realtime add table torneo_estado;
 
 -- RLS modo todo-editable (torneo entre amigos)
-alter table tournaments enable row level security;
-drop policy if exists "lectura publica" on tournaments;
-create policy "lectura publica" on tournaments for select using (true);
-drop policy if exists "insert publico" on tournaments;
-create policy "insert publico" on tournaments for insert with check (true);
-drop policy if exists "update publico" on tournaments;
-create policy "update publico" on tournaments for update using (true) with check (true);
+alter table torneo_estado enable row level security;
+drop policy if exists "lectura publica" on torneo_estado;
+create policy "lectura publica" on torneo_estado for select using (true);
+drop policy if exists "insert publico" on torneo_estado;
+create policy "insert publico" on torneo_estado for insert with check (true);
+drop policy if exists "update publico" on torneo_estado;
+create policy "update publico" on torneo_estado for update using (true) with check (true);
 ```
 
 ## Implementación (2026-09-04)

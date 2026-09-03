@@ -1,11 +1,15 @@
 /* Fase 2 — Nube Supabase (todo editable, realtime).
    Formato v2: { availablePlayers, seeds, bracket, reward, updatedAt }.
-   Se guarda en tournaments.data (jsonb). Sin bloqueo: last-write-wins. */
+   Se guarda en torneo_estado.data (jsonb). Sin bloqueo: last-write-wins. */
 
 const SUPABASE_URL = "https://kuuwrdsleoavonpkzhqi.supabase.co";
 // Pegar anon public key: Supabase Dashboard > Project Settings > API > anon public.
 // También se puede pasar por ?key=... (solo local, no se guarda en git) o localStorage.
 const SUPABASE_ANON_KEY = "sb_publishable_eFtFWLrkEv7Pk_Y3ALIpNA_dI7B_LNo";
+
+// Tabla propia de la app (la `tournaments` existente era de otra herramienta
+// y solo tiene id + created_at, sin columna data).
+const TABLE = "torneo_estado";
 
 // ID de la fila del torneo. Null = usa la primera fila que encuentre (o crea una).
 // Override por URL: ?torneo=<uuid>
@@ -65,7 +69,7 @@ function queuePush() {
 
 async function ensureRow(client) {
     if (TOURNAMENT_ID) return TOURNAMENT_ID;
-    const { data, error } = await client.from("tournaments").select("id").limit(1).maybeSingle();
+    const { data, error } = await client.from(TABLE).select("id").limit(1).maybeSingle();
     if (error) throw error;
     if (data?.id) {
         TOURNAMENT_ID = data.id;
@@ -74,7 +78,7 @@ async function ensureRow(client) {
     }
     // No hay filas: crear una (requiere policy de insert pública)
     const seed = getStateSnapshot();
-    const { data: created, error: insErr } = await client.from("tournaments")
+    const { data: created, error: insErr } = await client.from(TABLE)
         .insert({ name: "Torneo CESMI PvP 1", status: "en_curso", data: seed, champion: seed.bracket?.champion || "" })
         .select("id").single();
     if (insErr) throw insErr;
@@ -91,7 +95,7 @@ async function pushState() {
         setCloudStatus("☁️ subiendo…");
         const id = await ensureRow(client);
         const state = getStateSnapshot();
-        const { error } = await client.from("tournaments").update({
+        const { error } = await client.from(TABLE).update({
             data: state,
             champion: state.bracket?.champion || "",
             status: state.bracket?.champion ? "finalizado" : "en_curso"
@@ -112,7 +116,7 @@ async function pullOnce() {
     if (!client) return false;
     try {
         const id = await ensureRow(client);
-        let q = client.from("tournaments").select("data, champion, updated_at");
+        let q = client.from(TABLE).select("data, champion, updated_at");
         const { data, error } = id
             ? await q.eq("id", id).maybeSingle()
             : await q.limit(1).maybeSingle();
@@ -151,7 +155,7 @@ function subscribeState() {
     try {
         client.channel("torneo-realtime")
             .on("postgres_changes",
-                { event: "*", schema: "public", table: "tournaments" },
+                { event: "*", schema: "public", table: TABLE },
                 (payload) => {
                     const remote = payload.new?.data;
                     if (!remote || !remote.updatedAt) return;
