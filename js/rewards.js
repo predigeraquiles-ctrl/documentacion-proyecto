@@ -49,22 +49,46 @@ function renderPokeballGrid() {
         btn.appendChild(img);
 
         btn.onclick = () => {
-            grid.style.display = "none";
-            document.getElementById("rewardImg").src = ball.file;
-            const champName = (tournamentPlayers && tournamentPlayers.champion) ? tournamentPlayers.champion : "Campeón";
-            document.getElementById("rewardName").textContent = `${champName} reclamó: ${ball.name}`;
-            document.getElementById("rewardResult").style.display = "flex";
+            const reward = { name: ball.name, file: ball.file };
+            window._selectedReward = reward;
+            window.saveState && window.saveState();
+            showReward(reward, false);
         };
 
         grid.appendChild(btn);
     });
 }
 
+function showReward(reward, isRestore) {
+    const grid = document.getElementById("pokeballGrid");
+    grid.style.display = "none";
+    document.getElementById("rewardImg").src = reward.file;
+    const champName = (typeof tournamentPlayers !== "undefined" && tournamentPlayers.champion) ? tournamentPlayers.champion : "Campeón";
+    document.getElementById("rewardName").textContent = `${champName} reclamó: ${reward.name}`;
+    document.getElementById("rewardResult").style.display = "flex";
+    if (!isRestore) {
+        window.switchView && window.switchView("view-reward");
+    }
+}
+
 const restartBtn = document.getElementById("restartBtn");
 if (restartBtn) {
     restartBtn.addEventListener("click", () => {
-        location.reload();
+        const champ = (typeof tournamentPlayers !== "undefined" && tournamentPlayers.champion) || "el campeón";
+        if (confirm(`¿Reiniciar el torneo? Se borrará el progreso de ${champ} y volverá la ruleta a cero.`)) {
+            window.clearState && window.clearState();
+            location.reload();
+        }
     });
 }
 
+function resetTournament() {
+    if (confirm("¿Seguro? Se borra el torneo guardado y se empieza de cero.")) {
+        window.clearState && window.clearState();
+        location.reload();
+    }
+}
+
 window.renderPokeballGrid = renderPokeballGrid;
+window.showReward = showReward;
+window.resetTournament = resetTournament;

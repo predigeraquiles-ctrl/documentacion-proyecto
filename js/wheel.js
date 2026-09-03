@@ -88,8 +88,13 @@ function drawWheel() {
 
 function spin() {
     if (isSpinning || availablePlayers.length === 0) return;
+    if (window.REQUIRED_PLAYERS && !isDrawStarted?.() && availablePlayers.length !== window.REQUIRED_PLAYERS) {
+        alert(`Se necesitan ${window.REQUIRED_PLAYERS} participantes para girar.`);
+        return;
+    }
     isSpinning = true;
     spinBtn.disabled = true;
+    document.querySelector(".wheel-container")?.classList.add("spinning");
 
     const startAngle = currentAngle;
     const extraRotations = (Math.floor(Math.random() * 5) + 5) * 2 * Math.PI;
@@ -110,6 +115,7 @@ function spin() {
             requestAnimationFrame(animate);
         } else {
             isSpinning = false;
+            document.querySelector(".wheel-container")?.classList.remove("spinning");
             determineWinner();
         }
     }
@@ -134,21 +140,50 @@ function determineWinner() {
     availablePlayers.splice(selectedIndex, 1);
     currentSlotIndex++;
 
+    window.saveState && window.saveState();
+    window.renderPlayerList && window.renderPlayerList();
+
+    const slotNames = ["P1 - A", "P1 - B", "P2 - A", "P2 - B", "As (pase directo)"];
+    showDrawModal(selectedPlayer, slotNames[currentSlotIndex - 1] || `Puesto ${currentSlotIndex}`);
+
     if (availablePlayers.length === 1) {
         const lastPlayer = availablePlayers[0];
         const lastNode = document.getElementById("node-4");
         setTimeout(() => {
             lastNode.textContent = lastPlayer;
+            lastNode.classList.add("active");
             tournamentPlayers.n4 = lastPlayer;
             availablePlayers.pop();
             drawWheel();
             spinBtn.style.display = "none";
             startTournamentBtn.style.display = "block";
+            window.saveState && window.saveState();
+            window.renderPlayerList && window.renderPlayerList();
+            showDrawModal(lastPlayer, "As (pase directo)", true);
         }, 600);
     } else {
         drawWheel();
         spinBtn.disabled = false;
     }
+    window.updateSpinAvailability && window.updateSpinAvailability();
+}
+
+function showDrawModal(name, slot, isLast) {
+    const modal = document.getElementById("drawModal");
+    if (!modal) return;
+    document.getElementById("drawModalName").textContent = name;
+    document.getElementById("drawModalSub").textContent = isLast
+        ? "Último participante → As con pase directo. ¡Cuadro completo!"
+        : `Ocupa el puesto: ${slot}`;
+    document.getElementById("drawModalTitle").textContent = isLast ? "¡Cuadro completo!" : "¡Sorteado!";
+    const goArena = document.getElementById("drawModalGoArena");
+    if (goArena) goArena.style.display = isLast ? "block" : "none";
+    modal.style.display = "flex";
+}
+
+function hideDrawModal() {
+    const modal = document.getElementById("drawModal");
+    if (modal) modal.style.display = "none";
 }
 
 if (spinBtn) {
@@ -163,3 +198,22 @@ if (startTournamentBtn) {
 }
 
 drawWheel();
+
+// Restaurar progreso guardado (Fase 1: localStorage)
+(function initFromStorage() {
+    const saved = window.loadState && window.loadState();
+    if (saved && (saved.tournamentPlayers?.n0 || saved.tournamentPlayers?.champion || (saved.availablePlayers && saved.availablePlayers.length !== 5))) {
+        window.restoreUIFromState(saved);
+    } else {
+        window.updateSaveIndicator && window.updateSaveIndicator();
+    }
+    window.renderPlayerList && window.renderPlayerList();
+    document.getElementById("drawModalContinue")?.addEventListener("click", hideDrawModal);
+    document.getElementById("drawModal")?.addEventListener("click", (e) => {
+        if (e.target.id === "drawModal") hideDrawModal();
+    });
+    document.getElementById("drawModalGoArena")?.addEventListener("click", () => {
+        hideDrawModal();
+        document.getElementById("startTournamentBtn")?.click();
+    });
+})();

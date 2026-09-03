@@ -407,3 +407,126 @@ button:disabled {
 }
 
 .trophy-container img { width: 100%; height: 100%; object-fit: contain; }
+
+.save-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #121824;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 6px 14px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+#saveStatus { color: #22c55e; }
+
+.btn-reset {
+    padding: 6px 14px;
+    font-size: 13px;
+    margin-top: 0;
+    background: transparent;
+    border: 1px solid #475569;
+    box-shadow: none;
+    color: #94a3b8;
+}
+
+.btn-reset:hover { box-shadow: none; color: #fff; border-color: #ef4444; }
+
+/* --- Módulos frontend: participantes, modal, bracket --- */
+.panel {
+    background: #121824;
+    border: 2px solid #1e293b;
+    border-radius: 12px;
+    padding: 16px;
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 12px;
+}
+
+.participants-panel h3 { font-size: 16px; margin-bottom: 10px; }
+
+.add-form { display: flex; gap: 8px; }
+.add-form input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #f8fafc;
+    font-size: 14px;
+}
+.add-form button { margin-top: 0; padding: 10px 14px; font-size: 14px; }
+
+.hint { color: #94a3b8; font-size: 13px; margin: 8px 0; text-align: center; }
+
+.player-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.player-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-weight: bold;
+}
+.player-item.drawn { opacity: 0.6; border-color: #22c55e; }
+.btn-mini-danger {
+    margin-top: 0;
+    padding: 4px 10px;
+    font-size: 13px;
+    background: transparent;
+    border: 1px solid #475569;
+    box-shadow: none;
+}
+.btn-mini-danger:hover:not(:disabled) { border-color: #ef4444; box-shadow: none; }
+
+.wheel-container.spinning #wheel { animation: wheelGlow 0.6s ease-in-out infinite alternate; }
+@keyframes wheelGlow {
+    from { box-shadow: 0 0 30px rgba(0,0,0,0.9), 0 0 15px rgba(37,99,235,0.4); }
+    to { box-shadow: 0 0 30px rgba(0,0,0,0.9), 0 0 35px rgba(56,189,248,0.9); }
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    animation: fadeIn 0.25s ease-in-out;
+}
+.modal-card {
+    background: #121824;
+    border: 2px solid #38bdf8;
+    border-radius: 16px;
+    padding: 28px 36px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(56,189,248,0.4);
+    max-width: 360px;
+}
+.modal-emoji { font-size: 48px; }
+.modal-name {
+    font-size: 28px;
+    font-weight: 900;
+    color: #eab308;
+    text-transform: uppercase;
+    margin: 8px 0;
+}
+.modal-actions { display: flex; flex-direction: column; gap: 4px; }
+.btn-gold {
+    background: linear-gradient(135deg, #eab308, #ca8a04);
+    color: #000;
+    border-color: #fef08a;
+}
+
+.btn-random {
+    margin-top: 14px;
+    background: linear-gradient(135deg, #7c3aed, #4c1d95);
+    border-color: #a78bfa;
+    font-size: 14px;
+    padding: 10px 20px;
+}
