@@ -41,28 +41,37 @@
                 <button id="resetBtn" class="btn-reset" onclick="window.resetTournament()">↺ Reiniciar</button>
             </div>
 
-            <div class="panel participants-panel">
-                <h3>👥 Participantes (<span id="playerCount">5</span>)</h3>
-                <form id="addPlayerForm" class="add-form">
-                    <input id="newPlayerName" type="text" maxlength="20" placeholder="Nombre del competidor..." autocomplete="off">
-                    <button type="submit">➕ Agregar</button>
-                </form>
-                <p id="rosterHint" class="hint">Mínimo 2, máximo 16. Solo se puede editar antes del sorteo.</p>
-                <ul id="playerList" class="player-list"></ul>
-            </div>
+            <div class="draw-layout">
+                <div class="draw-panels">
+                    <div class="panel participants-panel">
+                        <h3>👥 Participantes (<span id="playerCount">5</span>)</h3>
+                        <form id="addPlayerForm" class="add-form">
+                            <input id="newPlayerName" type="text" maxlength="20" placeholder="Nombre del competidor..." autocomplete="off">
+                            <button type="submit">➕ Agregar</button>
+                        </form>
+                        <p id="rosterHint" class="hint">Mínimo 2, máximo 16. Solo se puede editar antes del sorteo.</p>
+                        <ul id="playerList" class="player-list"></ul>
+                    </div>
 
-            <div class="wheel-container">
-                <div class="pointer"></div>
-                <canvas id="wheel" width="320" height="320"></canvas>
+                    <div class="panel seeds-panel">
+                        <h3>📋 Orden de sorteo</h3>
+                        <p id="seedEmpty" class="hint">Todavía no hay sorteados. Girá la ruleta.</p>
+                        <ol id="seedList" class="seed-list"></ol>
+                    </div>
+                </div>
+
+                <div class="draw-stage">
+                    <div class="wheel-container">
+                        <div class="pointer"></div>
+                        <canvas id="wheel" width="320" height="320"></canvas>
+                    </div>
+                    <p id="drawProgress" class="hint">Participantes: 5</p>
+                    <div class="wheel-actions">
+                        <button id="spinBtn">Girar Ruleta</button>
+                        <button id="startTournamentBtn" style="display: none; background: linear-gradient(135deg, #eab308, #ca8a04); color: #000; border-color: #fef08a;">¡Ir a la Arena de Combate!</button>
+                    </div>
+                </div>
             </div>
-            <p id="drawProgress" class="hint">Participantes: 5</p>
-            <div class="panel seeds-panel">
-                <h3>📋 Orden de sorteo</h3>
-                <p id="seedEmpty" class="hint">Todavía no hay sorteados. Girá la ruleta.</p>
-                <ol id="seedList" class="seed-list"></ol>
-            </div>
-            <button id="spinBtn">Girar Ruleta</button>
-            <button id="startTournamentBtn" style="display: none; background: linear-gradient(135deg, #eab308, #ca8a04); color: #000; border-color: #fef08a;">¡Ir a la Arena de Combate!</button>
 
             <div id="drawModal" class="modal-overlay" style="display: none;">
                 <div class="modal-card">

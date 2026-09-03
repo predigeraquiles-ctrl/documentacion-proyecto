@@ -63,3 +63,10 @@ relacionado: ["[[00 - Indice Torneo CESMI]]", "[[Fase 1 - Persistencia localStor
 ## 🧪 Probar
 
 Ver [[Cómo probar#Frontend — ruleta, participantes y bracket]].
+
+## 🛠️ Fix layout sorteo (2026-09-04)
+
+- **Problema:** `view-draw` era una sola columna (participantes → ruleta → seeds → botones). Al agregar participantes la lista empujaba la ruleta y el botón `Girar Ruleta` se iba para abajo, lejos de la ruleta.
+- **Qué cambió:** `index.html` agrupa en `.draw-layout` de 2 columnas: `.draw-panels` (participantes + orden de sorteo) y `.draw-stage` (ruleta + `#drawProgress` + `.wheel-actions` con `spinBtn`/`startTournamentBtn`). `css/styles.css` suma flex + `position: sticky` en desktop y apila con ruleta primero (`order: -1`) en móvil. Listas con `max-height` + scroll para que no estiren la página.
+- **Archivos:** `index.html`, `css/styles.css`
+- **Probar:** agregar 10-16 participantes, verificar que la ruleta y Girar quedan fijos al lado; achicar a <768px y verificar que ruleta + botón quedan arriba.
