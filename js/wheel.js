@@ -11,11 +11,13 @@ const radius = center - 10;
 
 let currentAngle = 0;
 let isSpinning = false;
-let currentSlotIndex = 0;
+
+// seeds: orden de sorteo de la ruleta (reemplaza al viejo n0..n4 fijo).
+// tournamentPlayers.champion se mantiene por compatibilidad con rewards.js.
+let seeds = [];
 
 let tournamentPlayers = {
-    n0: "", n1: "", n2: "", n3: "", n4: "",
-    p1_win: "", p2_win: "", shikamaru_win: "", champion: ""
+    champion: ""
 };
 
 function drawWheel() {
@@ -88,8 +90,9 @@ function drawWheel() {
 
 function spin() {
     if (isSpinning || availablePlayers.length === 0) return;
-    if (window.REQUIRED_PLAYERS && !isDrawStarted?.() && availablePlayers.length !== window.REQUIRED_PLAYERS) {
-        alert(`Se necesitan ${window.REQUIRED_PLAYERS} participantes para girar.`);
+    const min = window.MIN_PLAYERS || 2;
+    if (!isDrawStarted?.() && totalPlayers?.() < min) {
+        alert(`Se necesitan al menos ${min} participantes para girar.`);
         return;
     }
     isSpinning = true;
@@ -131,35 +134,24 @@ function determineWinner() {
 
     const selectedPlayer = availablePlayers[selectedIndex];
 
-    const node = document.getElementById(`node-${currentSlotIndex}`);
-    node.textContent = selectedPlayer;
-    node.classList.add("active");
-
-    tournamentPlayers[`n${currentSlotIndex}`] = selectedPlayer;
-
+    seeds.push(selectedPlayer);
     availablePlayers.splice(selectedIndex, 1);
-    currentSlotIndex++;
 
     window.saveState && window.saveState();
     window.renderPlayerList && window.renderPlayerList();
+    renderSeedList();
 
-    const slotNames = ["P1 - A", "P1 - B", "P2 - A", "P2 - B", "As (pase directo)"];
-    showDrawModal(selectedPlayer, slotNames[currentSlotIndex - 1] || `Puesto ${currentSlotIndex}`);
+    const total = seeds.length + availablePlayers.length;
+    const isLast = availablePlayers.length === 0;
+    showDrawModal(selectedPlayer, `Puesto ${seeds.length} de ${total}`, isLast);
 
-    if (availablePlayers.length === 1) {
-        const lastPlayer = availablePlayers[0];
-        const lastNode = document.getElementById("node-4");
+    if (isLast) {
         setTimeout(() => {
-            lastNode.textContent = lastPlayer;
-            lastNode.classList.add("active");
-            tournamentPlayers.n4 = lastPlayer;
-            availablePlayers.pop();
             drawWheel();
             spinBtn.style.display = "none";
             startTournamentBtn.style.display = "block";
             window.saveState && window.saveState();
             window.renderPlayerList && window.renderPlayerList();
-            showDrawModal(lastPlayer, "As (pase directo)", true);
         }, 600);
     } else {
         drawWheel();
@@ -168,12 +160,29 @@ function determineWinner() {
     window.updateSpinAvailability && window.updateSpinAvailability();
 }
 
+function renderSeedList() {
+    const list = document.getElementById("seedList");
+    if (!list) return;
+    list.innerHTML = "";
+    seeds.forEach((name, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>#${i + 1}</strong> ${escapeHtml(name)}`;
+        list.appendChild(li);
+    });
+    const empty = document.getElementById("seedEmpty");
+    if (empty) empty.style.display = seeds.length ? "none" : "block";
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
 function showDrawModal(name, slot, isLast) {
     const modal = document.getElementById("drawModal");
     if (!modal) return;
     document.getElementById("drawModalName").textContent = name;
     document.getElementById("drawModalSub").textContent = isLast
-        ? "Último participante → As con pase directo. ¡Cuadro completo!"
+        ? `Último participante. ¡Cuadro completo con ${seeds.length}!`
         : `Ocupa el puesto: ${slot}`;
     document.getElementById("drawModalTitle").textContent = isLast ? "¡Cuadro completo!" : "¡Sorteado!";
     const goArena = document.getElementById("drawModalGoArena");
@@ -192,21 +201,20 @@ if (spinBtn) {
 
 if (startTournamentBtn) {
     startTournamentBtn.addEventListener("click", () => {
+        if (!seeds.length) return;
+        window.buildBracket && window.buildBracket([...seeds]);
+        window.saveState && window.saveState();
         window.switchView("view-arena");
-        window.setupVersus("Pelea 1", tournamentPlayers.n0, tournamentPlayers.n1);
+        window.setupCurrentVersus && window.setupCurrentVersus();
     });
 }
 
 drawWheel();
 
-// Restaurar progreso guardado (Fase 1: localStorage)
-(function initFromStorage() {
-    const saved = window.loadState && window.loadState();
-    if (saved && (saved.tournamentPlayers?.n0 || saved.tournamentPlayers?.champion || (saved.availablePlayers && saved.availablePlayers.length !== 5))) {
-        window.restoreUIFromState(saved);
-    } else {
-        window.updateSaveIndicator && window.updateSaveIndicator();
-    }
+// Wiring del modal (el restore del estado lo hace app.js al final, cuando
+// todos los módulos —incluido el bracket— ya están cargados).
+(function initDrawUI() {
+    renderSeedList();
     window.renderPlayerList && window.renderPlayerList();
     document.getElementById("drawModalContinue")?.addEventListener("click", hideDrawModal);
     document.getElementById("drawModal")?.addEventListener("click", (e) => {

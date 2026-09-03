@@ -42,12 +42,12 @@
             </div>
 
             <div class="panel participants-panel">
-                <h3>👥 Participantes (<span id="playerCount">5</span>/5)</h3>
+                <h3>👥 Participantes (<span id="playerCount">5</span>)</h3>
                 <form id="addPlayerForm" class="add-form">
                     <input id="newPlayerName" type="text" maxlength="20" placeholder="Nombre del competidor..." autocomplete="off">
                     <button type="submit">➕ Agregar</button>
                 </form>
-                <p id="rosterHint" class="hint">Se necesitan exactamente 5 para girar. Solo se puede editar antes del sorteo.</p>
+                <p id="rosterHint" class="hint">Mínimo 2, máximo 16. Solo se puede editar antes del sorteo.</p>
                 <ul id="playerList" class="player-list"></ul>
             </div>
 
@@ -55,7 +55,12 @@
                 <div class="pointer"></div>
                 <canvas id="wheel" width="320" height="320"></canvas>
             </div>
-            <p id="drawProgress" class="hint">Sorteados: 0 / 5</p>
+            <p id="drawProgress" class="hint">Participantes: 5</p>
+            <div class="panel seeds-panel">
+                <h3>📋 Orden de sorteo</h3>
+                <p id="seedEmpty" class="hint">Todavía no hay sorteados. Girá la ruleta.</p>
+                <ol id="seedList" class="seed-list"></ol>
+            </div>
             <button id="spinBtn">Girar Ruleta</button>
             <button id="startTournamentBtn" style="display: none; background: linear-gradient(135deg, #eab308, #ca8a04); color: #000; border-color: #fef08a;">¡Ir a la Arena de Combate!</button>
 
@@ -74,24 +79,8 @@
         </section>
 
         <section id="view-arena" class="view-section">
-            <div class="tree-container">
-                <div class="tree-level">
-                    <div class="node" id="node-champion">CAMPEÓN</div>
-                </div>
-                <div class="tree-level">
-                    <div class="node" id="node-final-1">Finalista 1</div>
-                    <div class="node" id="node-final-2">Finalista 2</div>
-                </div>
-                <div class="tree-level">
-                    <div class="node" id="node-shikamaru-match">Ganador P1</div>
-                    <div class="node shikamaru" id="node-4">As</div>
-                </div>
-                <div class="tree-level">
-                    <div class="node" id="node-0">P1 - A</div>
-                    <div class="node" id="node-1">P1 - B</div>
-                    <div class="node" id="node-2">P2 - A</div>
-                    <div class="node" id="node-3">P2 - B</div>
-                </div>
+            <div class="tree-container" id="bracketView">
+                <p class="hint">Completá el sorteo y tocá "¡Ir a la Arena!" para generar las llaves.</p>
             </div>
 
             <div class="versus-panel" id="versusPanel">
