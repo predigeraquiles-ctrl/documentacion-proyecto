@@ -71,3 +71,8 @@ create policy "update publico" on torneo_estado for update using (true) with che
 ## Reutiliza Fase 1
 
 El objeto guardado en `localStorage` (`torneoCESMI_v2`) es el mismo que va en `data jsonb`. Se compara por `updatedAt` (last-write-wins).
+
+## 🛠️ Reset con nube (2026-09-04)
+
+- **Bug:** Reiniciar solo borraba `localStorage`; al recargar, el pull traía el sorteo viejo de la nube y la lista quedaba bloqueada.
+- **Fix:** `doReset()` en `js/rewards.js` pisa local con `getInitialState()` y llama a `CloudReset()` (`js/db.js`) que hace update de la fila con el estado fresco antes del `reload`. Así todas las PCs reciben el torneo en cero por realtime.

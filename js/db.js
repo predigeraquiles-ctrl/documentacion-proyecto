@@ -145,8 +145,39 @@ async function pullOnce() {
     }
 }
 
-function subscribeState() {
-    if (!cloudConfigured()) {
+// Pisa la fila de la nube con un estado fresco (para Reiniciar).
+// Sin esto, el pull posterior resucita el sorteo anterior.
+async function resetCloud(freshHint) {
+    if (!cloudConfigured()) return null;
+    const client = getClient();
+    if (!client) return null;
+    try {
+        setCloudStatus("☁️ reiniciando…");
+        const id = await ensureRow(client);
+        const fresh = freshHint || (window.getInitialState && window.getInitialState()) || {
+            availablePlayers: [...(window.DEFAULT_PLAYERS || [])],
+            seeds: [],
+            bracket: { seeds: [], rounds: [], champion: "", totalRounds: 0 },
+            reward: null,
+            updatedAt: Date.now()
+        };
+        const { error } = await client.from(TABLE).update({
+            data: fresh,
+            champion: "",
+            status: "en_curso"
+        }).eq("id", id);
+        if (error) throw error;
+        _lastPushedAt = fresh.updatedAt;
+        setCloudStatus("☁️ sincronizado", true);
+        return fresh;
+    } catch (e) {
+        console.warn("Cloud reset falló:", e);
+        setCloudStatus("☁️ sin conexión", false);
+        return null;
+    }
+}
+
+function subscribeState() {    if (!cloudConfigured()) {
         setCloudStatus("☁️ solo local (falta ANON_KEY)");
         return;
     }
@@ -186,4 +217,5 @@ function subscribeState() {
 window.CloudPush = queuePush;
 window.CloudPull = pullOnce;
 window.CloudSubscribe = subscribeState;
+window.CloudReset = resetCloud;
 window.cloudConfigured = cloudConfigured;

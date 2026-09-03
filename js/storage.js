@@ -3,7 +3,8 @@
    Migra torneos v1 (formato fijo n0..n4) a seeds automáticamente. */
 const TORNEO_KEY = "torneoCESMI_v2";
 const TORNEO_KEY_V1 = "torneoCESMI_v1";
-const DEFAULT_PLAYERS = ["Nacho", "Giovanni", "Franquito", "Nico", "Rolo"];
+// Arranque vacío a propósito: los participantes se cargan 1 a 1 en la UI.
+const DEFAULT_PLAYERS = [];
 
 function getInitialState() {
     return {
@@ -136,6 +137,7 @@ function restoreUIFromState(s) {
 
 window.saveState = saveState;
 window.loadState = loadState;
+window.getInitialState = getInitialState;
 window.clearState = clearState;
 window.restoreUIFromState = restoreUIFromState;
 window.updateSaveIndicator = updateSaveIndicator;

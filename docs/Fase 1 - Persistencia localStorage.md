@@ -97,7 +97,7 @@ flowchart LR
 > Cada navegador/PC tiene su propio `localStorage`. Si un jugador abre la página en su celu, ve un torneo vacío. Esto se resuelve en la [[Fase 2 - Supabase y modo espectador]].
 
 - Si el `JSON` se corrompe, `loadState()` lo ignora y arranca de cero (no rompe la app).
-- Los nombres por defecto siguen hardcodeados en `DEFAULT_PLAYERS` — pendiente: editor de jugadores.
+- Arranque vacío: `DEFAULT_PLAYERS = []`, los participantes se cargan 1 a 1 (2026-09-04).
 
 ## 🔗 Siguiente
 

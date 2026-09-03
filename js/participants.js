@@ -92,6 +92,11 @@ function updateSpinAvailability() {
         ? (total >= MIN_PLAYERS && total <= MAX_PLAYERS)
         : availablePlayers.length > 0;
     spinBtn.disabled = !ready || isSpinning;
+    // Con 1 restante no hay sorteo posible: el botón asigna directo.
+    const lastOne = isDrawStarted() && availablePlayers.length === 1;
+    if (spinBtn.textContent !== undefined) {
+        spinBtn.textContent = lastOne ? "Asignar último participante" : "Girar Ruleta";
+    }
     if (!isDrawStarted() && total < MIN_PLAYERS) {
         spinBtn.title = `Agregá al menos ${MIN_PLAYERS} participantes para girar`;
     } else {

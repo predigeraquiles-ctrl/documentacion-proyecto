@@ -76,16 +76,32 @@ if (restartBtn) {
     restartBtn.addEventListener("click", () => {
         const champ = (typeof tournamentPlayers !== "undefined" && tournamentPlayers.champion) || "el campeón";
         if (confirm(`¿Reiniciar el torneo? Se borrará el progreso de ${champ} y volverá la ruleta a cero.`)) {
-            window.clearState && window.clearState();
-            location.reload();
+            doReset();
         }
     });
 }
 
+// Reinicio real: pisa local Y nube con estado fresco antes de recargar.
+// (Solo borrar local no alcanza: el pull de Fase 2 resucitaría el sorteo anterior.)
+async function doReset() {
+    const fresh = window.getInitialState ? window.getInitialState() : null;
+    try {
+        if (fresh) {
+            localStorage.setItem("torneoCESMI_v2", JSON.stringify(fresh));
+        } else {
+            window.clearState && window.clearState();
+        }
+        localStorage.removeItem("torneoCESMI_v1");
+    } catch {}
+    try { await window.CloudReset?.(fresh); } catch (e) {
+        console.warn("Reset nube falló:", e);
+    }
+    location.reload();
+}
+
 function resetTournament() {
     if (confirm("¿Seguro? Se borra el torneo guardado y se empieza de cero.")) {
-        window.clearState && window.clearState();
-        location.reload();
+        doReset();
     }
 }
 

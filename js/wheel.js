@@ -1,4 +1,4 @@
-let availablePlayers = ["Nacho", "Giovanni", "Franquito", "Nico", "Rolo"];
+let availablePlayers = [];
 const colors = ["#ef4444", "#3b82f6", "#eab308", "#10b981", "#8b5cf6"];
 
 const canvas = document.getElementById("wheel");
@@ -33,7 +33,8 @@ function drawWheel() {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.font = "bold 16px sans-serif";
-        ctx.fillText("¡Cuadro Completo!", center, center);
+        const done = (typeof seeds !== "undefined") && seeds.length > 0;
+        ctx.fillText(done ? "¡Cuadro Completo!" : "Agregá participantes", center, center);
         return;
     }
 
@@ -93,6 +94,11 @@ function spin() {
     const min = window.MIN_PLAYERS || 2;
     if (!isDrawStarted?.() && totalPlayers?.() < min) {
         alert(`Se necesitan al menos ${min} participantes para girar.`);
+        return;
+    }
+    // Con 1 restante no hay nada que sortear: se asigna directo, sin animación.
+    if (isDrawStarted?.() && availablePlayers.length === 1) {
+        assignLastInstant();
         return;
     }
     isSpinning = true;
@@ -160,6 +166,26 @@ function determineWinner() {
     window.updateSpinAvailability && window.updateSpinAvailability();
 }
 
+// Último restante: asignación directa sin girar (girar con 1 no sortea nada).
+function assignLastInstant() {
+    if (availablePlayers.length !== 1 || isSpinning) return;
+    const last = availablePlayers.pop();
+    seeds.push(last);
+
+    window.saveState && window.saveState();
+    window.renderPlayerList && window.renderPlayerList();
+    renderSeedList();
+    drawWheel();
+
+    spinBtn.style.display = "none";
+    startTournamentBtn.style.display = "block";
+    window.saveState && window.saveState();
+    window.updateSpinAvailability && window.updateSpinAvailability();
+
+    showDrawModal(last, `Puesto ${seeds.length} de ${seeds.length}`, true);
+}
+window.assignLastInstant = assignLastInstant;
+
 function renderSeedList() {
     const list = document.getElementById("seedList");
     if (!list) return;
@@ -173,8 +199,7 @@ function renderSeedList() {
     if (empty) empty.style.display = seeds.length ? "none" : "block";
 }
 
-function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function escapeHtml(s) {    return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 function showDrawModal(name, slot, isLast) {

@@ -70,6 +70,16 @@ Ver [[Cómo probar#Frontend — ruleta, participantes y bracket]].
 - **Archivos:** `index.html` (botón + modal), `css/styles.css` (overlay, caja, FAQ, contacto + fix texto blanco en `.sidebar-nav .nav-btn`), `js/app.js` (abrir/cerrar/X/click-fuera; el handler general de `.nav-btn` ignora botones sin `data-view`).
 - **Probar:** abrir sidebar → Soporte → verificar FAQ desplegables, cerrar con X y con click fuera, y que el link de WhatsApp abre `wa.me/5493751596483`.
 
+## 🛠️ Arranque vacío (2026-09-04)
+
+- **Qué:** sin nombres pregrabados; `DEFAULT_PLAYERS = []` en `js/storage.js` y `availablePlayers = []` en `js/wheel.js`. Ruleta vacía muestra "Agregá participantes" (sigue "¡Cuadro Completo!" al terminar el sorteo). Contadores iniciales en `0`.
+- **Probar:** abrir en incógnito → lista vacía, Girar deshabilitado hasta cargar 2+.
+
+## 🛠️ Fix último participante (2026-09-04)
+
+- **Bug:** con 1 restante la ruleta seguía activa y giraba sin sortear nada.
+- **Fix:** `spin()` en `js/wheel.js` deriva a `assignLastInstant()` (asignación directa + modal de cuadro completo, sin animación); `updateSpinAvailability()` en `js/participants.js` cambia la etiqueta a "Asignar último participante".
+
 ## 🛠️ Fix layout sorteo (2026-09-04)
 
 - **Problema:** `view-draw` era una sola columna (participantes → ruleta → seeds → botones). Al agregar participantes la lista empujaba la ruleta y el botón `Girar Ruleta` se iba para abajo, lejos de la ruleta.
