@@ -12,7 +12,8 @@ relacionado: ["[[00 - Indice Torneo CESMI]]"]
 
 ## 1. Situación actual (2026-09-03)
 
-- Repo local: `ruletaTorneoPoke`, rama `main`, remote `origin → https://github.com/FacundoFranco18/ruletaTorneoPoke.git`
+- Repo local: `ruletaTorneoPoke`, rama `main`.
+- Remote actual `origin → https://github.com/predigeraquiles-ctrl/documentacion-proyecto.git` (repo propio, creado 2026-09-03). Antes apuntaba a `FacundoFranco18/ruletaTorneoPoke`, pero el push daba 403 (sin permiso) → se migró a repo propio. Commit `710494a` pusheado OK.
 - Sin `docs/` commiteado aún: `docs/`, `js/storage.js`, `js/participants.js` están como `??` (untracked), más `M` en `index.html`, `js/*`, `css/*`.
 - Sin `.gitignore`.
 
