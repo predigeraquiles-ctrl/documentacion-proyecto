@@ -14,6 +14,7 @@ Cada modificación del código **debe** venir con su nota en esta carpeta.
 
 - [[Fase 1 - Persistencia localStorage]] — autoguardado, restauración, reinicio controlado (2026-09-03)
 - [[Frontend - Ruleta Participantes Bracket]] — modal sorteo, gestión participantes, ganador manual/aleatorio (2026-09-03)
+- [[Bracket dinámico N participantes]] — roster libre 2-16, seeds, rondas con byes, guardado v2 (2026-09-04)
 - [[Git y GitHub con Obsidian Git]] — vincular bóveda a repo privado + auto-sync (2026-09-03)
 - [[Fase 2 - Supabase y modo espectador]] — plan pendiente: tabla `tournaments`, realtime, link público
 - [[Decisiones técnicas]] — por qué localStorage primero, por qué Supabase después
