@@ -422,6 +422,8 @@ button:disabled {
 
 #saveStatus { color: #22c55e; }
 
+#cloudStatus { color: #94a3b8; font-size: 13px; }
+
 .btn-reset {
     padding: 6px 14px;
     font-size: 13px;

@@ -33,7 +33,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 });
 
 // Restore centralizado: corre último, con todos los módulos cargados
-// (storage, wheel, participants, tree, rewards).
+// (storage, db, wheel, participants, tree, rewards).
 window.addEventListener("DOMContentLoaded", () => {
     const saved = window.loadState && window.loadState();
     const defaultLen = (window.DEFAULT_PLAYERS || []).length;
@@ -47,5 +47,14 @@ window.addEventListener("DOMContentLoaded", () => {
     } else {
         window.updateSaveIndicator && window.updateSaveIndicator();
         window.renderBracket && window.renderBracket();
+    }
+    // Fase 2: si hay nube configurada, traer lo último y suscribirse.
+    // Si la nube es más nueva, pisa lo local (last-write-wins).
+    if (window.cloudConfigured && window.cloudConfigured()) {
+        window.CloudPull && window.CloudPull();
+        window.CloudSubscribe && window.CloudSubscribe();
+    } else {
+        const el = document.getElementById("cloudStatus");
+        if (el) el.textContent = "☁️ solo local (falta ANON_KEY)";
     }
 });

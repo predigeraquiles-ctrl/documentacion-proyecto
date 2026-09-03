@@ -38,6 +38,7 @@
         <section id="view-draw" class="view-section active">
             <div class="save-bar">
                 <span id="saveStatus">● Sin guardar</span>
+                <span id="cloudStatus">☁️ …</span>
                 <button id="resetBtn" class="btn-reset" onclick="window.resetTournament()">↺ Reiniciar</button>
             </div>
 
@@ -123,7 +124,9 @@
         </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/storage.js"></script>
+    <script src="js/db.js"></script>
     <script src="js/wheel.js"></script>
     <script src="js/participants.js"></script>
     <script src="js/tree.js"></script>

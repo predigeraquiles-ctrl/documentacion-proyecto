@@ -1,44 +1,71 @@
 ---
 tags: [torneo, fase-2, plan, supabase]
 fecha: 2026-09-03
-estado: planificado
+estado: en-curso
 relacionado: ["[[00 - Indice Torneo CESMI]]", "[[Fase 1 - Persistencia localStorage]]"]
 ---
 
-# 🌐 Fase 2 — Supabase y modo espectador (plan)
+# 🌐 Fase 2 — Supabase y modo espectador (todo editable)
 
-> [!note] Pendiente
-> Esta fase aún no está implementada. Es el plan acordado: gestión tuya + vista en vivo para jugadores.
+> [!note] En curso
+> Implementado espejo a nube con realtime, sin bloqueo (decisión 2026-09-04: todo editable, last-write-wins).
 
 ## Objetivo
 
-- Vos gestionás desde tu PC (admin).
-- Jugadores ven el progreso desde sus celulares (espectador, solo lectura, realtime).
-- El torneo no depende de tu navegador: vive en la nube.
+- El torneo vive en la nube (`tournaments.data` jsonb, formato v2).
+- Todos los que abren el link ven y pueden editar; los cambios llegan en vivo (realtime + polling 8s).
+- Sin nube configurada, la app sigue 100% local (Fase 1).
 
-## Esquema propuesto (1 tabla para empezar)
+## Proyecto
+
+- URL: `https://kuuwrdsleoavonpkzhqi.supabase.co`
+- Tabla: `tournaments` (endpoint `/rest/v1/tournaments`)
+- Clave: `js/db.js` → `SUPABASE_ANON_KEY` (**falta pegarla**: Dashboard > Project Settings > API > anon public).
+
+## Esquema v2 (1 tabla)
 
 ```sql
-create table tournaments (
+create table if not exists tournaments (
   id uuid default gen_random_uuid() primary key,
   name text default 'Torneo CESMI PvP 1',
   status text default 'en_curso',
-  data jsonb,          -- mismo objeto de Fase 1: tournamentPlayers + step + reward
+  data jsonb,          -- formato v2: availablePlayers + seeds + bracket + reward + updatedAt
   champion text,
-  created_at timestamp default now()
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
+
+-- Realtime para el canal postgres_changes
+alter publication supabase_realtime add table tournaments;
+
+-- RLS modo todo-editable (torneo entre amigos)
+alter table tournaments enable row level security;
+drop policy if exists "lectura publica" on tournaments;
+create policy "lectura publica" on tournaments for select using (true);
+drop policy if exists "insert publico" on tournaments;
+create policy "insert publico" on tournaments for insert with check (true);
+drop policy if exists "update publico" on tournaments;
+create policy "update publico" on tournaments for update using (true) with check (true);
 ```
+
+## Implementación (2026-09-04)
+
+- `js/db.js` (NUEVO): `getClient/queuePush/pushState/pullOnce/subscribeState/ensureRow`, debounce 800ms, flag `_applyingRemote` anti-loops, `TOURNAMENT_ID` por `?torneo=` o primera fila (autocrea si no hay).
+- `js/storage.js`: `saveState()` llama a `window.CloudPush()` después de guardar local.
+- `js/app.js`: al arrancar hace `CloudPull()` + `CloudSubscribe()`; sin clave muestra `☁️ solo local`.
+- `index.html`: CDN `@supabase/supabase-js@2` + `js/db.js` + `<span id="cloudStatus">` en la save-bar.
+- `css/styles.css`: estilo `#cloudStatus`.
 
 ## Pasos
 
-1. [ ] Crear proyecto gratis en supabase.com
-2. [ ] Crear tabla `tournaments` con el SQL de arriba
-3. [ ] Activar RLS: lectura pública, escritura solo admin
-4. [ ] Crear `js/db.js` con cliente Supabase + funciones `pushState()` / `subscribeState()`
-5. [ ] Llamar `pushState()` donde hoy se llama `saveState()`
-6. [ ] Modo URL: `?admin=1` gestiona, sin parámetro solo mira
+1. [x] Crear proyecto gratis en supabase.com
+2. [x] Crear tabla `tournaments` con el SQL de arriba
+3. [x] Activar RLS: lectura pública, escritura solo admin
+4. [x] Crear `js/db.js` con cliente Supabase + funciones `pushState()` / `subscribeState()`
+5. [x] Llamar `pushState()` donde hoy se llama `saveState()`
+6. [ ] Pegar `SUPABASE_ANON_KEY` en `js/db.js` y probar: abrir 2 navegadores, girar en uno, ver en el otro (<8s)
 7. [ ] Publicar en Vercel / Netlify / GitHub Pages y pasar el link
 
 ## Reutiliza Fase 1
 
-El objeto guardado en `localStorage` es el mismo que irá en la columna `data jsonb`. La migración es directa.
+El objeto guardado en `localStorage` (`torneoCESMI_v2`) es el mismo que va en `data jsonb`. Se compara por `updatedAt` (last-write-wins).

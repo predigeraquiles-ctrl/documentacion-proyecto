@@ -26,6 +26,8 @@ function saveState() {
         };
         localStorage.setItem(TORNEO_KEY, JSON.stringify(state));
         updateSaveIndicator();
+        // Fase 2: espejo a Supabase (debounced, no bloquea). Todo editable.
+        try { window.CloudPush && window.CloudPush(); } catch {}
     } catch (e) {
         console.warn("No se pudo guardar el torneo:", e);
     }
