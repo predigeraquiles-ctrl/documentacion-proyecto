@@ -31,3 +31,21 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
         }
     });
 });
+
+// Restore centralizado: corre último, con todos los módulos cargados
+// (storage, wheel, participants, tree, rewards).
+window.addEventListener("DOMContentLoaded", () => {
+    const saved = window.loadState && window.loadState();
+    const defaultLen = (window.DEFAULT_PLAYERS || []).length;
+    const hasProgress = saved && (
+        (saved.seeds && saved.seeds.length) ||
+        (saved.bracket && (saved.bracket.rounds?.length || saved.bracket.champion)) ||
+        (saved.availablePlayers && saved.availablePlayers.length !== defaultLen)
+    );
+    if (hasProgress) {
+        window.restoreUIFromState(saved);
+    } else {
+        window.updateSaveIndicator && window.updateSaveIndicator();
+        window.renderBracket && window.renderBracket();
+    }
+});

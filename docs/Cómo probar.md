@@ -30,6 +30,16 @@ Checklist manual para validar la [[Fase 1 - Persistencia localStorage|Fase 1]] y
 - [ ] Botón `🎲 Ganador aleatorio` → avanza solo tras ~500 ms
 - [ ] Completar hasta campeón → `GRAN FINAL` → recompensa
 
+## Bracket dinámico (N participantes)
+
+- [ ] Reiniciar, dejar 2 participantes → girar 2 veces → arena muestra `GRAN FINAL` directa
+- [ ] Probar con 3 → Ronda 1 con 1 pelea + 1 bye (pase directo), luego final
+- [ ] Probar con 6 → `Ronda 1 > Semifinal > GRAN FINAL`, perdedores tachados, byes con borde punteado
+- [ ] Agregar un 7mo/8vo desde el formulario (antes bloqueaba en 5) → ruleta los incluye
+- [ ] Intentar agregar un 17mo → aviso de máximo 16
+- [ ] Recargar a mitad del bracket → rondas, ganadores y versus actual se restauran
+- [ ] Con torneo v1 viejo guardado → al abrir, las seeds se conservan (las llaves se regeneran)
+
 ## Para compañeros no técnicos
 
 1. Abrí la página.

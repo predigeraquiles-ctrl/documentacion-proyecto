@@ -530,3 +530,49 @@ button:disabled {
     font-size: 14px;
     padding: 10px 20px;
 }
+/* --- Bracket dinámico (N participantes) --- */
+.seeds-panel h3 { font-size: 15px; margin-bottom: 6px; }
+.seed-list { list-style: none; display: flex; flex-direction: column; gap: 4px; margin-top: 6px; padding: 0; }
+.seed-list li {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+}
+.seed-list li strong { color: #38bdf8; margin-right: 6px; }
+
+.bracket-rounds {
+    display: flex;
+    gap: 18px;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 6px;
+}
+.bracket-round { flex: 1; min-width: 170px; display: flex; flex-direction: column; gap: 10px; }
+.bracket-round h4 {
+    text-align: center;
+    color: #eab308;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+.match-card {
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+}
+.match-card.decided { border-color: #38bdf8; }
+.match-card.bye { border-color: #eab308; border-style: dashed; }
+.fighter { font-weight: bold; font-size: 15px; color: #cbd5e1; }
+.fighter.winner { color: #ffffff; }
+.fighter.loser { opacity: 0.3; text-decoration: line-through; }
+.vs-mini { font-size: 12px; font-style: italic; color: #eab308; font-weight: 900; }
+.win-tag { font-size: 13px; color: #22c55e; font-weight: bold; }
+.bye-tag { font-size: 12px; color: #fef08a; font-style: italic; }
+.bracket-champion { margin-top: 20px; font-size: 22px !important; }

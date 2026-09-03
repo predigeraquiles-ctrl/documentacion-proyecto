@@ -1,23 +1,144 @@
-let currentStep = 1;
+/* Bracket dinámico de eliminación simple para N participantes.
+   seeds[] define el orden de sorteo. Rondas con byes (pase directo) si el
+   conteo es impar. Compatible con rewards.js vía tournamentPlayers.champion. */
+let bracket = { seeds: [], rounds: [], champion: "" };
+
+function roundName(index, total) {
+    // index 0-based, total = cantidad de rondas del torneo
+    if (total <= 1 || index === total - 1) return "GRAN FINAL";
+    if (index === total - 2) return "Semifinal";
+    return `Ronda ${index + 1}`;
+}
+
+function makeRound(participants, name) {
+    const matches = [];
+    for (let i = 0; i < participants.length; i += 2) {
+        if (i + 1 < participants.length) {
+            matches.push({ a: participants[i], b: participants[i + 1], winner: "" });
+        } else {
+            matches.push({ a: participants[i], b: null, winner: participants[i], bye: true });
+        }
+    }
+    return { name, matches };
+}
+
+function countRounds(n) {
+    let rounds = 0, p = n;
+    while (p > 1) { p = Math.ceil(p / 2); rounds++; }
+    return rounds;
+}
+
+function buildBracket(seedList) {
+    const total = Math.max(countRounds(seedList.length), 1);
+    bracket = {
+        seeds: [...seedList],
+        rounds: [makeRound(seedList, roundName(0, total))],
+        champion: "",
+        totalRounds: total
+    };
+    // Si hay un solo participante, es campeón directo
+    if (seedList.length === 1) {
+        bracket.champion = seedList[0];
+        tournamentPlayers.champion = seedList[0];
+    }
+    renderBracket();
+    setupCurrentVersus();
+}
+
+function allDecided(round) {
+    return round.matches.every(m => m.winner);
+}
+
+function advancers(round) {
+    return round.matches.map(m => m.winner).filter(Boolean);
+}
+
+function getCurrentMatch() {
+    for (let r = 0; r < bracket.rounds.length; r++) {
+        for (let m = 0; m < bracket.rounds[r].matches.length; m++) {
+            const match = bracket.rounds[r].matches[m];
+            if (match.a && match.b && !match.winner) {
+                return { roundIndex: r, matchIndex: m, match };
+            }
+        }
+    }
+    return null;
+}
+
+function setupCurrentVersus() {
+    const title = document.getElementById("versusTitle");
+    const hint = document.getElementById("roundHint");
+    const panel = document.getElementById("versusPanel");
+    if (bracket.champion) {
+        if (title) title.textContent = "CAMPEÓN: " + bracket.champion;
+        if (hint) hint.textContent = "Torneo terminado. ¡Felicidades al campeón!";
+        if (panel) panel.style.display = "flex";
+        document.getElementById("btn-f1").textContent = bracket.champion;
+        document.getElementById("btn-f2").textContent = "🏆";
+        return;
+    }
+    const cur = getCurrentMatch();
+    if (!cur) {
+        if (title) title.textContent = "Armando bracket...";
+        return;
+    }
+    const matchNo = cur.matchIndex + 1;
+    const roundName_ = bracket.rounds[cur.roundIndex].name;
+    const label = roundName_ === "GRAN FINAL" ? "GRAN FINAL" : `${roundName_} · Pelea ${matchNo}`;
+    setupVersus(label, cur.match.a, cur.match.b);
+}
 
 function setupVersus(title, f1, f2) {
     document.getElementById("versusTitle").textContent = title;
     document.getElementById("btn-f1").textContent = f1;
     document.getElementById("btn-f2").textContent = f2;
-    const hints = {
-        "Pelea 1": "Pelea 1: los ganadores avanzan. Tocá al ganador.",
-        "Cruce Retador Impar": "Cruce impar: ganador P1 vs As. Tocá al ganador.",
-        "Pelea 2": "Pelea 2: los ganadores van a la final. Tocá al ganador.",
-        "GRAN FINAL": "Gran final: el ganador es el CAMPEÓN. ¡Sin presión!"
-    };
     const h = document.getElementById("roundHint");
-    if (h && hints[title]) h.textContent = hints[title];
+    if (h) {
+        h.textContent = title.startsWith("GRAN FINAL")
+            ? "Gran final: el ganador es el CAMPEÓN. ¡Sin presión!"
+            : "Tocá al ganador para avanzar. O usá el dado para elegir al azar.";
+    }
+}
+
+function selectWinner(winnerIndex) {
+    if (bracket.champion) return;
+    const cur = getCurrentMatch();
+    if (!cur) return;
+    const winner = winnerIndex === 1 ? cur.match.a : cur.match.b;
+    cur.match.winner = winner;
+
+    // ¿Ronda completa? ¿Torneo completo?
+    const lastRound = bracket.rounds[bracket.rounds.length - 1];
+    if (bracket.rounds.every(allDecided)) {
+        const adv = advancers(lastRound);
+        if (adv.length <= 1) {
+            return crownChampion(adv[0] || winner);
+        }
+        const idx = bracket.rounds.length; // 0-based de la ronda nueva
+        bracket.rounds.push(makeRound(adv, roundName(idx, bracket.totalRounds || (idx + 1))));
+    }
+
+    renderBracket();
+    setupCurrentVersus();
+    window.saveState && window.saveState();
+}
+
+function crownChampion(winner) {
+    bracket.champion = winner;
+    tournamentPlayers.champion = winner;
+    renderBracket();
+    setupCurrentVersus();
+    window.saveState && window.saveState();
+    setTimeout(() => {
+        window.renderPokeballGrid && window.renderPokeballGrid();
+        window.switchView && window.switchView("view-reward");
+    }, 1500);
 }
 
 function randomWinner() {
-    if (currentStep > 4) return;
+    const cur = getCurrentMatch();
+    if (!cur || bracket.champion) return;
     const pick = Math.random() < 0.5 ? 1 : 2;
-    // Pequeña animación de "dado" en el botón
     const btn = document.getElementById("randomWinnerBtn");
     if (btn) {
         btn.disabled = true;
@@ -32,67 +153,60 @@ function randomWinner() {
     }
 }
 
-function selectWinner(winnerIndex) {
-    if (currentStep === 1) {        const winner = winnerIndex === 1 ? tournamentPlayers.n0 : tournamentPlayers.n1;
-        const loserNode = document.getElementById(winnerIndex === 1 ? "node-1" : "node-0");
-        loserNode.classList.add("loser");
-
-        tournamentPlayers.p1_win = winner;
-        const target = document.getElementById("node-shikamaru-match");
-        target.textContent = winner;
-        target.classList.add("active");
-
-        currentStep = 2;
-        setupVersus("Cruce Retador Impar", winner, tournamentPlayers.n4);
+function renderBracket() {
+    const view = document.getElementById("bracketView");
+    if (!view) return;
+    view.innerHTML = "";
+    if (!bracket.rounds.length) {
+        view.innerHTML = `<p class="hint">Completá el sorteo y tocá "¡Ir a la Arena!" para generar las llaves.</p>`;
+        return;
     }
-    else if (currentStep === 2) {
-        const winner = winnerIndex === 1 ? tournamentPlayers.p1_win : tournamentPlayers.n4;
-        const loserNode = document.getElementById(winnerIndex === 1 ? "node-4" : "node-shikamaru-match");
-        loserNode.classList.add("loser");
-
-        tournamentPlayers.shikamaru_win = winner;
-        const target = document.getElementById("node-final-1");
-        target.textContent = winner;
-        target.classList.add("active");
-
-        currentStep = 3;
-        setupVersus("Pelea 2", tournamentPlayers.n2, tournamentPlayers.n3);
+    const wrap = document.createElement("div");
+    wrap.className = "bracket-rounds";
+    bracket.rounds.forEach((round) => {
+        const col = document.createElement("div");
+        col.className = "bracket-round";
+        const h = document.createElement("h4");
+        h.textContent = round.name;
+        col.appendChild(h);
+        round.matches.forEach((m) => {
+            const card = document.createElement("div");
+            card.className = "match-card" + (m.bye ? " bye" : "") + (m.winner ? " decided" : "");
+            if (m.bye) {
+                card.innerHTML = `<span class="fighter winner">${escapeHtmlBracket(m.a)}</span><span class="bye-tag">pase directo</span>`;
+            } else {
+                const aCls = m.winner ? (m.winner === m.a ? "winner" : "loser") : "";
+                const bCls = m.winner ? (m.winner === m.b ? "winner" : "loser") : "";
+                card.innerHTML =
+                    `<span class="fighter ${aCls}">${escapeHtmlBracket(m.a)}</span>` +
+                    `<span class="vs-mini">vs</span>` +
+                    `<span class="fighter ${bCls}">${escapeHtmlBracket(m.b)}</span>` +
+                    (m.winner ? `<span class="win-tag">✓ ${escapeHtmlBracket(m.winner)}</span>` : "");
+            }
+            col.appendChild(card);
+        });
+        wrap.appendChild(col);
+    });
+    view.appendChild(wrap);
+    if (bracket.champion) {
+        const c = document.createElement("div");
+        c.className = "node champion-node bracket-champion";
+        c.textContent = "🏆 " + bracket.champion;
+        view.appendChild(c);
     }
-    else if (currentStep === 3) {
-        const winner = winnerIndex === 1 ? tournamentPlayers.n2 : tournamentPlayers.n3;
-        const loserNode = document.getElementById(winnerIndex === 1 ? "node-3" : "node-2");
-        loserNode.classList.add("loser");
+}
 
-        tournamentPlayers.p2_win = winner;
-        const target = document.getElementById("node-final-2");
-        target.textContent = winner;
-        target.classList.add("active");
-
-        currentStep = 4;
-        setupVersus("GRAN FINAL", tournamentPlayers.shikamaru_win, tournamentPlayers.p2_win);
-    }
-    else if (currentStep === 4) {
-        const winner = winnerIndex === 1 ? tournamentPlayers.shikamaru_win : tournamentPlayers.p2_win;
-        tournamentPlayers.champion = winner;
-
-        const loserNode = document.getElementById(winnerIndex === 1 ? "node-final-2" : "node-final-1");
-        loserNode.classList.add("loser");
-
-        const championNode = document.getElementById("node-champion");
-        championNode.textContent = winner;
-        championNode.classList.add("champion-node");
-
-        setTimeout(() => {
-            window.renderPokeballGrid();
-            window.switchView("view-reward");
-        }, 1500);
-    }
-    window.saveState && window.saveState();
+function escapeHtmlBracket(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 document.getElementById("btn-f1").addEventListener("click", () => selectWinner(1));
 document.getElementById("btn-f2").addEventListener("click", () => selectWinner(2));
 document.getElementById("randomWinnerBtn")?.addEventListener("click", randomWinner);
 
+window.buildBracket = buildBracket;
+window.renderBracket = renderBracket;
 window.setupVersus = setupVersus;
+window.setupCurrentVersus = setupCurrentVersus;
+window.selectWinner = selectWinner;
 window.randomWinner = randomWinner;
