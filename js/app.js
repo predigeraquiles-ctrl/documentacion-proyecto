@@ -25,6 +25,7 @@ if (menuToggle && sidebar) {
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const viewId = btn.dataset.view;
+        if (!viewId) return; // botones sin vista (ej: Soporte) tienen su propio handler
         switchView(viewId);
         if (sidebar && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open');
@@ -56,5 +57,32 @@ window.addEventListener("DOMContentLoaded", () => {
     } else {
         const el = document.getElementById("cloudStatus");
         if (el) el.textContent = "☁️ solo local (falta ANON_KEY)";
+    }
+
+    // Soporte: modal FAQ (botón en sidebar, sin data-view)
+    const btnSoporte = document.getElementById('btnSoporte');
+    const modalSoporte = document.getElementById('modalSoporte');
+    const btnCerrarSoporte = document.getElementById('btnCerrarSoporte');
+    if (btnSoporte && modalSoporte && btnCerrarSoporte) {
+        // Abrir el modal de soporte
+        btnSoporte.addEventListener('click', (e) => {
+            e.preventDefault();
+            modalSoporte.style.display = 'flex';
+            if (sidebar && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Cerrar con el botón de la X
+        btnCerrarSoporte.addEventListener('click', () => {
+            modalSoporte.style.display = 'none';
+        });
+
+        // Cerrar haciendo clic fuera del contenido
+        window.addEventListener('click', (e) => {
+            if (e.target === modalSoporte) {
+                modalSoporte.style.display = 'none';
+            }
+        });
     }
 });

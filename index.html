@@ -24,6 +24,7 @@
             <button class="nav-btn active" data-view="view-draw">🎰 Sorteo / Ruleta</button>
             <button class="nav-btn" data-view="view-arena">🌳 Árbol de Combatientes</button>
             <button class="nav-btn" data-view="view-reward">🏆 Recompensas</button>
+            <button class="nav-btn" id="btnSoporte">🛠️ Soporte</button>
         </nav>
     </aside>
 
@@ -123,6 +124,53 @@
             </div>
         </section>
     </main>
+
+    <!-- MODAL DE SOPORTE TÉCNICO Y FAQ -->
+    <div id="modalSoporte" class="modal-soporte-overlay" style="display: none;">
+        <div class="modal-soporte-caja">
+            <button id="btnCerrarSoporte" class="btn-cerrar">&times;</button>
+
+            <h2>🛠️ Centro de Soporte CESMI</h2>
+            <p class="soporte-sub">Preguntas frecuentes y ayuda en directo para el torneo.</p>
+
+            <div class="faq-contenedor">
+                <details class="faq-item">
+                    <summary>❓ ¿Cómo funciona el sorteo de la ruleta?</summary>
+                    <p>Al hacer clic en "Girar Ruleta", el sistema selecciona al azar la posición de los jugadores en el árbol de enfrentamientos.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>⚡ ¿Qué pasa si pierdo la conexión en una batalla?</summary>
+                    <p>Tienes un margen de 2 minutos para reconectarte a la batalla. Si no regresas en ese tiempo, la victoria se asignará automáticamente a tu oponente.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>🏆 ¿Cómo se registran los resultados en el árbol?</summary>
+                    <p>Al finalizar el combate en nuestra plataforma, el servidor detecta al ganador y actualiza la siguiente ronda del cuadro automáticamente.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>🔒 ¿Puedo jugar desde un cliente externo de Showdown?</summary>
+                    <p>No. Para garantizar la transparencia del torneo, las batallas solo se pueden iniciar e ingresar desde nuestra plataforma web oficial.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>👥 ¿Qué hago si mi rival no se presenta a pelear?</summary>
+                    <p>Si tu oponente no responde tras 5 minutos de llamado, comunícate inmediatamente con el encargado de soporte para darte el pase automático.</p>
+                </details>
+            </div>
+
+            <div class="contacto-directo-caja">
+                <h3>💬 ¿Problemas durante tu partida?</h3>
+                <p>Contacta directamente con el encargado de soporte del torneo:</p>
+
+                <!-- Modifica el número de WhatsApp aquí -->
+                <a href="https://wa.me/5493751596483?text=Hola,%20tengo%20un%20problema%20en%20el%20Torneo%20CESMI" target="_blank" class="btn-contacto-wa">
+                    📲 Contactar a Soporte por WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/storage.js"></script>

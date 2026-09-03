@@ -64,6 +64,12 @@ relacionado: ["[[00 - Indice Torneo CESMI]]", "[[Fase 1 - Persistencia localStor
 
 Ver [[Cómo probar#Frontend — ruleta, participantes y bracket]].
 
+## 🛠️ Centro de Soporte (2026-09-04)
+
+- **Qué:** botón `🛠️ Soporte` en el sidebar + modal `#modalSoporte` con FAQ acordeón (`<details>`) y contacto WhatsApp.
+- **Archivos:** `index.html` (botón + modal), `css/styles.css` (overlay, caja, FAQ, contacto + fix texto blanco en `.sidebar-nav .nav-btn`), `js/app.js` (abrir/cerrar/X/click-fuera; el handler general de `.nav-btn` ignora botones sin `data-view`).
+- **Probar:** abrir sidebar → Soporte → verificar FAQ desplegables, cerrar con X y con click fuera, y que el link de WhatsApp abre `wa.me/5493751596483`.
+
 ## 🛠️ Fix layout sorteo (2026-09-04)
 
 - **Problema:** `view-draw` era una sola columna (participantes → ruleta → seeds → botones). Al agregar participantes la lista empujaba la ruleta y el botón `Girar Ruleta` se iba para abajo, lejos de la ruleta.
